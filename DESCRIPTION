@@ -1,0 +1,10 @@
+Package: YamlObjects
+Type: Package
+Title: Parse a YAML based object / type structure 
+Version: 0.1
+Date: 2014-11-10
+Author: Sebastian Kranz
+Maintainer: Sebastian Kranz <sebastian.kranz@uni-ulm.de>
+Description: Parse a YAML based object / type structure 
+License: GPL >= 2.0
+Depends: TableTree, restorepoint, yaml
