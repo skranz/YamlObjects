@@ -7,73 +7,47 @@ is.condition = function(obj,typeName=get.typeName(obj), types=get.types()) {
 }
 
 
-#' Assign default values for non-specified fields of a game object (action etc...) 
-set.defaults = function(obj,type,fields=type$fields) {
-  restore.point("setDefaults")
-  for (na in names(fields)) {
-    field.typeName = deduce.types.field.type(type,na)
-    field.type = get.type(typeName=field.typeName)
-    
-    if (length(fields[[na]])==0)
-      next
-    if (length(fields[[na]]$default)==0)
-      next
-    
-    # An atomic type (unknown will be treated like atomic)
-    if (field.typeName == "unknown" |
-        is.subtype(field.typeName,"atomic") |
-        is.true(field.type$atomic))
-    {
-      if ("default" %in% names(fields[[na]]) & is.null(obj[[na]])) {
-        obj[[na]]=fields[[na]]$default  
-      }
-    # Default is an non-atomic type
-    } else {
-
-      # obj has not specified the default field
-      # generate a new field object
-      if (length(obj[[na]])==0) {
-        restore.point("setDefaults.newobj")
-        
-        field.obj = new.obj(type=field.type,name=na,values = type$fields[[na]]$default)
-        obj[[na]] = field.obj
-      
-      # obj already has the default field, just copy the field values
-      } else {
-        if (is.list(type$fields[[na]]$default)) {          
-          for (subna in type$fields[[na]]$default) {
-            if (is.null(obj[[na]][[subna]])) {
-              obj[[na]][[subna]] = type$fields[[na]]$default[[subna]]
-            }
-          }
-        } else {
-          field.type = get.type(field.typeName)
-          subna = field.type$defaultField
-          if (is.null(obj[[na]][[subna]])) {
-            obj[[na]][[subna]] = type$fields[[na]]$default[[subna]]
-          }          
-        }
-      }
-    }
-  }
-  return(obj)
-}
-
 #' Retrieves for an object a structure consisting of an obj.li containing all descendants and a data frame df that contains some summary information
 obj.to.struct = function(obj,name) {
-  #restore.point("obj.to.struct")
+  restore.point("obj.to.struct")
   st = table.tree(obj,name=name)
   
-  # TO DO: set typeName as attribute for each object in obj.li
-  st
+  obj.li = tt.obj.li(st)
+  
+  names = colnames(st)
+  typeNames = sapply(obj.li, function(obj) {
+    attr(obj,"typeName")
+  })
+
+  st$typeName = typeNames  
+  setcolorder(st, c(names[1:2],"typeName",names[-(1:2)]))
+  txt = lapply(obj.li, get.object.string)
+  txt = substring(txt,1,30)
+  st$content = txt
+  
+
+  #names(obj.li) = st$name
+  #attr(st,"obj.li") <- obj.li  
+  
+  st 
 }
 
+get.object.string = function(obj) {
+  if (is.list(obj) & length(obj)>0) {
+    str = paste0("list(", length(obj),"): ",
+                 paste0(names(obj),collapse=","))
+  } else {
+    str = paste0(as.character(obj), collapse=",")    
+  }
+  str
+}
+
+
 #' Load a game, experiment or dataLink structure
-load.struct = function(name, file=paste0(default.struct.path(),"/",name,".yaml"), typeName="game", just.obj = FALSE, types=get.types()) {
+load.struct = function(name, file=paste0(default.struct.path(),"/",name,".yaml"), typeName="game", just.obj = FALSE, types=get.types(),...) {
   restore.point("load.struct")
-  #file = "C:/research/eedb/Structures/DataLinks/UGPersuAp_DataLink.yaml"
-  
-  struct.tree = read.yaml(file)
+ 
+  struct.tree = read.yaml(file,...)
   
   #print.yaml(struct.tree)
   obj = tree.obj.to.struct.obj(tree.obj=struct.tree,name=name, typeName=typeName,types=types)
@@ -181,4 +155,6 @@ examples.get.conditions = function() {
   get.conditions(228,gs)
   
 }
+
+
 

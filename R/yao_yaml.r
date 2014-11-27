@@ -19,7 +19,7 @@ yaml.bool.handler.no <- function(val) {
 
 #' Reads a yaml file and returns as a list
 #' @export
-read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NULL, catch.error = TRUE) {
+read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NULL, catch.error = TRUE, check.by.row=FALSE) {
   restore.point("read.yaml")
   if (is.null(text)) {
     str = suppressWarnings(paste(readLines(file), collapse = "\n"))
@@ -42,6 +42,21 @@ read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NU
   
   yaml.string.handler = function(val) {
     gsub(quote.char,'"',val,fixed=TRUE)
+  }
+  
+  if (check.by.row) {
+    sep.str = strsplit(str,"\n", fixed=TRUE)[[1]]
+    for (row in 1:length(sep.str)) {
+      cat("\n try to read rows 1:",row,"\n")
+      txt = paste0(sep.str[1:row],collapse="\n")
+      tryCatch(
+        yaml.load(txt, handlers=list("bool#yes"=yaml.bool.handler.yes,"bool#no"=yaml.bool.handler.no, "str"=yaml.string.handler)),
+        error = function(e) {
+          str = paste0(as.character(e),file.str, " rows 1:",row)
+          stop(str, call.=FALSE)
+        }
+      )
+    }
   }
   
   tryCatch(
@@ -105,4 +120,5 @@ read.yaml.blocks = function(txt, add.txt =TRUE, omit.header=FALSE, tab.width=3) 
   }
   ret
 }
+
 

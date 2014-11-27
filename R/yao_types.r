@@ -101,6 +101,11 @@ make.type.hierachy = function(types = get.types()) {
       # we first inherit from earlier types
       parentTypes = types[[i]]$parentType
       
+      if (any(!(parentTypes %in% names))) {
+        missing = setdiff(parentTypes, names)
+        stop("The type '", type$name, "'' has unknown parentTypes ", paste0("'",missing,"'", collapse=", "),".")
+      }
+      
       # All parentTypes must already have inherited 
       if (any(!super[parentTypes]))
         next
@@ -131,6 +136,10 @@ inherit.from.parent.type = function(type, parent) {
   type$superTypes = unique(c(type$superTypes,parent$name,parent$superTypes))
 
   # Copy some type information from parent. Should probably copy more
+  if (is.null(type$inheritFromParentObject)) {
+    type$inheritFromParentObject = parent$inheritFromParentObject
+  }
+
   if (is.null(type$expectValue)) {
     type$expectValue = parent$expectValue
   }
@@ -186,17 +195,7 @@ deduce.types.field.type = function(type,field) {
 deduce.typeName = function(tree.obj,name,parent, parent.type = get.type(parent)) {
   
   #restore.point("get.field.typeName", deep.copy=FALSE)
-  
-  # Conditions, can be placed everywhere
-  if (str.starts.with(name,"if ")) {
-    return("if")
-  } else if (name == "else") {
-    return("else")
-  } else if (str.starts.with(name,"_")) {
-    return(name)
-  }
-
- 
+   
   # The object has a field "_type"
   if ("_type" %in% names(tree.obj)) {
     return(tree.obj[["_type"]])

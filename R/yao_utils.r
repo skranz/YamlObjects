@@ -1,4 +1,16 @@
 
+#' Compute the depth of a nested list
+list.depth <- function(this,thisdepth=0, add.vector=FALSE){
+  #restore.point("list.depth")
+  if(!is.list(this)){
+    return(thisdepth + add.vector*(length(this)>1))
+  }else{
+    depths = unlist(lapply(this,list.depth,thisdepth=thisdepth+1, add.vector=add.vector))
+    #restore.point("list.depth1")
+    return(max(depths))    
+  }
+}
+
 int.seq = function(from, to) {
   if (from > to)
     return(NULL)

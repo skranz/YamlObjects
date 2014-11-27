@@ -7,8 +7,11 @@ examples.yaml.objects.settings = function(){
     default.types.path = "D:/libraries/XEconDB/Types",
     default.types.file = "D:/libraries/XEconDB/Types/types.yaml",
     default.struct.path = "D:/libraries/XEconDB/Structures/Games",
-    init.special.obj.fun = function(obj, typeName,...) {
+    transform.special.obj = function(obj, typeName,parent,...) {
       return(obj)
+    },
+    get.special.type = function(obj, name, typeName, parent,...) {
+      return(typeName)
     }
   )
   types=load.types()
@@ -64,6 +67,21 @@ obj.table.tree.extras = function(obj) {
 yaml.objects.settings = function(...) {
   li = list(...)
   copy.into.env(dest=ya.glob, source=li)
+}
+
+
+init.special.obj = function(obj,typeName,parent,...) {
+  if (!is.null(ya.glob$init.special.obj.fun)) {
+    return(ya.glob$init.special.obj(obj=obj, typeName,parent=parent,...))
+  }
+  return(obj)
+}
+  
+get.special.type = function(tree.obj,name, typeName, parent,...) {
+  if (!is.null(ya.glob$get.special.type)) {
+    return(ya.glob$get.special.type(tree.obj=tree.obj, name=name, typeName=typeName, parent=parent,...))
+  }
+  return(typeName)
 }
 
 
