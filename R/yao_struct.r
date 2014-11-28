@@ -22,7 +22,7 @@ obj.to.struct = function(obj,name) {
   st$typeName = typeNames  
   setcolorder(st, c(names[1:2],"typeName",names[-(1:2)]))
   txt = lapply(obj.li, get.object.string)
-  txt = substring(txt,1,30)
+  txt = substring(txt,1,40)
   st$content = txt
   
 
@@ -37,7 +37,12 @@ get.object.string = function(obj) {
     str = paste0("list(", length(obj),"): ",
                  paste0(names(obj),collapse=","))
   } else {
-    str = paste0(as.character(obj), collapse=",")    
+    if (length(obj)>1) {
+      str = paste0(substring(class(obj)[1],1,3),"(", length(obj),"): ",
+                   paste0(as.character(obj), collapse=","))
+    } else {
+      str = paste0(as.character(obj), collapse=",")
+    }
   }
   str
 }
@@ -57,6 +62,11 @@ load.struct = function(name, file=paste0(default.struct.path(),"/",name,".yaml")
     
   struc = obj.to.struct(obj,name=name)
   return(struc)
+}
+
+#' Get all rows whose type is a subtype of supertype
+get.subtype.rows = function(st, supertype) {
+  which(is.subtype(st$typeName,supertype))
 }
 
 #' Gets the closest parent field that is a subtype of supertype 
@@ -81,63 +91,6 @@ get.parents.rows = function(row, st) {
   } else {
     return(NULL)
   }
-}
-
-#' Gets all _if conditions of children nodes
-get.all.children.if.cond = function(row,st) {
-  restore.point("get.all.children.if.cond")
-  pobj = tt.object(st,row)
-  cond = NULL
-  for (obj in pobj) {
-    type = get.type(obj)
-    if (type$name == "if") {
-      name = get.name(obj)
-      new.cond = substring(name,4)  
-      cond = c(cond,new.cond)  
-    } 
-  }
-  return(cond)
-}
-
-#' Gets all conditions from _if, _if_variant and _switch of an object as a character string 
-get.conditions = function(row,st) {
-  restore.point("get.conditions")
-  parents = get.parents.rows(row,st)
-
-  cond = NULL
-  pind = 1
-  for (pind in seq_along(parents)) {
-    pr = parents[pind]
-    obj = tt.object(st,pr)
-    type = get.type(obj)
-    name = get.name(obj)
-    if (type$name == "if") {
-      new.cond = substring(name,4)  
-      cond = c(cond,new.cond)
-    } else if (type$name == "else") {
-      gpr = st$parent[pr]
-      ifconds = get.all.children.if.cond(gpr,st)
-      cond = c(cond,paste0("!(", paste0("(", ifconds,")", collapse = "|"),")")) 
-    }
-  }
-  if (length(cond) == 0)
-    return(NULL)
-  
-  return(paste0("(",cond,")", collapse="&"))
-}
-
-combine.conditions = function(...) {
-  conds = list(...)
-  
-  is.cond = sapply(conds, function(cond) length(cond)>0)
-  conds = conds[is.cond]
-  if (length(conds)==0)
-    return(NULL)
-  
-  if (length(conds)==1)
-    return(conds[[1]])
-  
-  return(paste0("(",conds,")", collapse="&"))  
 }
 
 examples.get.conditions = function() {

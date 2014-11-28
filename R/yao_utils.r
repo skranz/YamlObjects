@@ -171,7 +171,7 @@ path.parts = function(path,sep=".") {
   str.split(path,sep)
 }
 
-#'
+
 common.and.distinct.path.parts = function(opath, npath,sep=".") {
   restore.point("common.and.distinct.path.parts")
   op = str.split(opath,sep)[[1]]
@@ -217,7 +217,7 @@ at.tree.path = function(li, tree.path) {
   return(eval(parse(text=code,srcfile=NULL)))
 }
 
-#' 
+
 intersect.vector.list = function(li, init) {
   if (missing(init))
     return(Reduce(intersect,li))
