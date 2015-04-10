@@ -10,6 +10,9 @@ examples.yaml.objects.settings = function(){
     transform.special.obj = function(obj, typeName,parent,...) {
       return(obj)
     },
+    post.transform.special.obj = function(obj, typeName,parent,...) {
+      return(obj)
+    },
     get.special.type = function(obj, name, typeName, parent,...) {
       return(typeName)
     }
@@ -32,9 +35,10 @@ yaml.objects.examples = function() {
   tt = table.tree(types)
   yaml.objects.settings(types=types)
 
-  file = "D:/libraries/XEconDB/Structures/Games/CostCoord.yaml"
-  name="CostCoord"
-  st = load.struct(name=name)
+  file = "D:/libraries/XEconDB/Structures/Games/UGPropMess.yaml"
+  name="UGPropMess"
+  st = load.struct(name=name,typeName="sfg")
+  names(tt.objects(st))
   df = st$df
   
   yo = read.yaml(file)
@@ -70,6 +74,13 @@ yaml.objects.settings = function(...) {
 }
 
 
+# ignore.fields.for.tree = function(obj) {
+#   if (!is.null(ya.glob$ignore.fields.for.tree)) {
+#     return(ya.glob$ignore.fields.for.tree(obj=obj))
+#   }
+#   return(NULL)  
+# }
+# 
 init.special.obj = function(obj,typeName,parent,...) {
   if (!is.null(ya.glob$init.special.obj.fun)) {
     return(ya.glob$init.special.obj(obj=obj, typeName,parent=parent,...))

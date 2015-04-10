@@ -231,10 +231,16 @@ is.subtype = function(sub.type, type, same.type.true = TRUE, types=get.types()) 
   if (is(type,"type"))
     type = type$name
   
-  if (same.type.true) {
-    sub.types = c(type,types[[type]]$subTypes)
+  if (length(type)==1) {
+    if (same.type.true) {
+      sub.types = c(type,types[[type]]$subTypes)
+    } else {
+      sub.types = types[[type]]$subTypes    
+    }
   } else {
-    sub.types = types[[type]]$subTypes    
+    sub.types = unique(unlist(lapply(type, function(t) types[[t]]$subTypes)))    
+    if (same.type.true) 
+      sub.types = c(type,sub.types)
   }
   sub.type %in% sub.types
 }

@@ -128,7 +128,12 @@ tree.obj.to.struct.obj = function(tree.obj, name, typeName=NULL,parent=NULL,type
     
     # Parse children objects
     field.names = names(obj)
-
+    
+    # Remove # from object name
+    field.names = str.left.of(field.names,"#")
+    names(obj) = field.names
+    
+    
     new.parent = obj
     new.typeName = NULL
     
@@ -151,6 +156,9 @@ tree.obj.to.struct.obj = function(tree.obj, name, typeName=NULL,parent=NULL,type
       obj[[i]] = ret
     }
   }
+  
+  obj = post.transform.special.object(obj,typeName=typeName, parent=parent)
+
   #names(obj[[1]])
   return(obj)
 }
@@ -161,6 +169,15 @@ transform.special.object = function(obj,typeName=get.typeName(obj),parent=NULL,.
     return(fun(obj,typeName,parent,...))
   return(obj)
 }
+
+#' transform obj after children have been generated
+post.transform.special.object = function(obj,typeName=get.typeName(obj),parent=NULL,...) {
+  fun = ya.glob$post.transform.special.object
+  if (!is.null(fun))
+    return(fun(obj,typeName,parent,...))
+  return(obj)
+}
+
 
 inherit.from.parent.object = function(obj, parent, type=get.type(obj)) {
   fields = type$inheritFromObject

@@ -7,4 +7,4 @@ Author: Sebastian Kranz
 Maintainer: Sebastian Kranz <sebastian.kranz@uni-ulm.de>
 Description: Parse a YAML based object / type structure 
 License: GPL >= 2.0
-Depends: TableTree, restorepoint, yaml
+Depends: TableTree, restorepoint, yaml, stringtools

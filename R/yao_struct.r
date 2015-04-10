@@ -7,11 +7,27 @@ is.condition = function(obj,typeName=get.typeName(obj), types=get.types()) {
 }
 
 
-#' Retrieves for an object a structure consisting of an obj.li containing all descendants and a data frame df that contains some summary information
+#' Creates for an object a table.tree structure 
 obj.to.struct = function(obj,name) {
   restore.point("obj.to.struct")
-  st = table.tree(obj,name=name)
   
+#   ignore.fields = ignore.fields.for.tree(obj)
+#   if (length(ignore.fields)==0) {
+#     st = table.tree(obj,name=name)
+#   } else {
+#     if (is.character(ignore.fields)) {
+#       if (!is.null(names(obj))) {
+#         fields = setdiff(names(obj), ignore.fields)
+#       } else {
+#         fields = seq_along(obj)
+#       }
+#     } else if (is.numeric(ignore.fields)) {
+#       fields = setdiff(seq_along(obj), ignore.fields)
+#     }
+#     st = table.tree(obj[fields],name=name)
+#   }
+  
+  st = table.tree(obj,name=name)
   obj.li = tt.obj.li(st)
   
   names = colnames(st)
@@ -49,10 +65,14 @@ get.object.string = function(obj) {
 
 
 #' Load a game, experiment or dataLink structure
-load.struct = function(name, file=paste0(default.struct.path(),"/",name,".yaml"), typeName="game", just.obj = FALSE, types=get.types(),...) {
-  restore.point("load.struct")
+load.struct = function(name, typeName,  file=paste0(default.struct.path(),"/",name,".yaml"), just.obj = FALSE, types=get.types(), text=NULL,...) {
  
-  struct.tree = read.yaml(file,...)
+  if (is.null(text)) {
+    struct.tree = read.yaml(file,...)
+  } else {
+    struct.tree = read.yaml(text=text,...)
+  }
+  restore.point("load.struct")
   
   #print.yaml(struct.tree)
   obj = tree.obj.to.struct.obj(tree.obj=struct.tree,name=name, typeName=typeName,types=types)

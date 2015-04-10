@@ -72,11 +72,10 @@ read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NU
 }
 
 examples.read.yaml = function() {
-  setwd("C:/libraries/ExpEconDB")
-  init.ee("C:/libraries/ExpEconDB")
   
-  fn = paste0(ee$struc.path,"/Games/NewLureOfAuthority.yaml")
-  read.yaml(fn)
+  fn = paste0("D:/libraries/XEconDB/Structures/Games/LureOfAuthorityAlternative.yaml")
+  obj = read.yaml(fn)
+  obj$variants
 }
   
 
