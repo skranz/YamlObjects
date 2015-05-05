@@ -19,7 +19,7 @@ yaml.bool.handler.no <- function(val) {
 
 #' Reads a yaml file and returns as a list
 #' @export
-read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NULL, catch.error = TRUE, check.by.row=FALSE) {
+read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NULL, catch.error = TRUE, check.by.row=FALSE, space.after.colon=FALSE) {
   restore.point("read.yaml")
   if (!is.null(file)) {
     file.str = paste0(" in ", file)
@@ -36,8 +36,10 @@ read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NU
   # Convert tabs to spaces
   str = gsub("\t","   ",str)  
   # Convert ":text" into ": text"
-  str = gsub(":",": ",str)
-  str = gsub(":  ",": ",str)
+  if (space.after.colon) {
+    str = gsub(":",": ",str)
+    str = gsub(":  ",": ",str)
+  }
   str = gsub('"',quote.char,str,fixed=TRUE)  
   
   if (verbose)
