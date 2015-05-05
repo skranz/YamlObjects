@@ -65,13 +65,21 @@ get.object.string = function(obj) {
 
 
 #' Load a game, experiment or dataLink structure
-load.struct = function(name, typeName,  file=paste0(default.struct.path(),"/",name,".yaml"), just.obj = FALSE, types=get.types(), text=NULL,...) {
+load.struct = function(name, typeName,  file=paste0(default.struct.path(),"/",name,".yaml"), just.obj = FALSE, types=get.types(), text=NULL, add.yaml = TRUE,...) {
  
   if (is.null(text)) {
-    struct.tree = read.yaml(file,...)
+    text = suppressWarnings(paste(readLines(file), collapse = "\n"))
   } else {
-    struct.tree = read.yaml(text=text,...)
+    file = NULL
   }
+  
+  struct.tree = try(read.yaml(file=file,text=text,...),silent=TRUE)
+
+  # Load again with better error message
+  if(is(struct.tree,"try-error")) {
+    struct.tree = read.yaml(file=file,text=text,check.by.row = TRUE,...)
+  }
+  
   restore.point("load.struct")
   
   #print.yaml(struct.tree)
@@ -81,6 +89,9 @@ load.struct = function(name, typeName,  file=paste0(default.struct.path(),"/",na
     return(obj)
     
   struc = obj.to.struct(obj,name=name)
+  if (add.yaml) {
+    attr(struc,"yaml") = text
+  }
   return(struc)
 }
 
@@ -116,8 +127,10 @@ get.parents.rows = function(row, st) {
 examples.get.conditions = function() {
   examples.yaml.objects.settings()
   file = "D:/libraries/XEconDB/Structures/Games/CostCoord.yaml"
-  name="LureOfAuthority"
-  gs = load.struct(name=name)
+  name="ReducedLureOfAuthority"
+  file = "D:/libraries/XEconDB/Structures/Games/ReducedLureOfAuthority.yaml"
+
+  gs = load.struct(name=name,file=file)
  
   get.conditions(130,gs)
   

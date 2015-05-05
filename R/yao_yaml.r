@@ -21,13 +21,17 @@ yaml.bool.handler.no <- function(val) {
 #' @export
 read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NULL, catch.error = TRUE, check.by.row=FALSE) {
   restore.point("read.yaml")
-  if (is.null(text)) {
-    str = suppressWarnings(paste(readLines(file), collapse = "\n"))
+  if (!is.null(file)) {
     file.str = paste0(" in ", file)
   } else {
-    str = text
     file.str = ""
   }
+  if (is.null(text)) {
+    str = suppressWarnings(paste(readLines(file), collapse = "\n"))
+  } else {
+    str = text
+  }
+
   #message(paste("read.yam:", file))
   # Convert tabs to spaces
   str = gsub("\t","   ",str)  
@@ -52,7 +56,9 @@ read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NU
       tryCatch(
         yaml.load(txt, handlers=list("bool#yes"=yaml.bool.handler.yes,"bool#no"=yaml.bool.handler.no, "str"=yaml.string.handler)),
         error = function(e) {
-          str = paste0(as.character(e),file.str, " rows 1:",row)
+          str = paste0(as.character(e),file.str, " row ",row,"\n")
+          rows = max(row-2,1):min(row+1,length(sep.str))
+          str = paste0(str,paste0(rows,": ",sep.str[rows],collapse="\n"))
           stop(str, call.=FALSE)
         }
       )
