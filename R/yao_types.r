@@ -17,7 +17,7 @@ load.one.type.file = function(file = default.types.file()) {
 
 
 #' Reads information about action types
-load.types = function(type.files = paste0(default.types.path(),"/",list.files(default.types.path())),  store.as.default=TRUE, high.prio.types=list(), low.prio.types=list()) {
+load.yaml.types = load.types = function(type.files = paste0(types.path,"/",list.files(types.path)),  store.as.default=TRUE, high.prio.types=list(), low.prio.types=list(), types.path = default.types.path()) {
   restore.point("load.types")
   types = do.call("c",
                   c(high.prio.types,
