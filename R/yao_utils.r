@@ -1,4 +1,19 @@
 
+# mark the encoding of character vectors as UTF-8
+mark_utf8 <- function(x) {
+  if (is.character(x)) {
+    Encoding(x) <- 'UTF-8'
+    return(x)
+  }
+  if (!is.list(x)) return(x)
+  attrs <- attributes(x)
+  res <- lapply(x, mark_utf8)
+  attributes(res) <- attrs
+  res
+}
+
+
+
 #' Compute the depth of a nested list
 list.depth <- function(this,thisdepth=0, add.vector=FALSE){
   #restore.point("list.depth")
