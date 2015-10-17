@@ -19,7 +19,7 @@ yaml.bool.handler.no <- function(val) {
 
 #' Reads a yaml file and returns as a list
 #' @export
-read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NULL, catch.error = TRUE, check.by.row=FALSE, space.after.colon=FALSE, utf8=TRUE) {
+read.yaml = function(file=NULL, verbose=FALSE, keep.quotes=TRUE, quote.char = "__QUOTE__", text=NULL, catch.error = TRUE, check.by.row=FALSE, space.after.colon=FALSE, utf8=TRUE) {
   restore.point("read.yaml")
   if (!is.null(file)) {
     file.str = paste0(" in ", file)
@@ -46,15 +46,19 @@ read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NU
     str = gsub(":",": ",str)
     str = gsub(":  ",": ",str)
   }
-  str = gsub('"',quote.char,str,fixed=TRUE)
-
+  
+  handlers=list("bool#yes"=yaml.bool.handler.yes,"bool#no"=yaml.bool.handler.no)
+  if (keep.quotes) {
+    str = gsub('"',quote.char,str,fixed=TRUE)
+    yaml.string.handler = function(val) {
+      gsub(quote.char,'"',val,fixed=TRUE)
+    }
+    handlers[["str"]]=yaml.string.handler
+  } 
   if (verbose)
     cat(str)
 
 
-  yaml.string.handler = function(val) {
-    gsub(quote.char,'"',val,fixed=TRUE)
-  }
 
   if (check.by.row) {
     sep.str = strsplit(str,"\n", fixed=TRUE)[[1]]
@@ -62,7 +66,7 @@ read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NU
       cat("\n try to read rows 1:",row,"\n")
       txt = paste0(sep.str[1:row],collapse="\n")
       tryCatch(
-        yaml.load(txt, handlers=list("bool#yes"=yaml.bool.handler.yes,"bool#no"=yaml.bool.handler.no, "str"=yaml.string.handler)),
+        yaml.load(txt, handlers=handlers),
         error = function(e) {
           str = paste0(as.character(e),file.str, " row ",row,"\n")
           rows = max(row-2,1):min(row+1,length(sep.str))
@@ -74,7 +78,7 @@ read.yaml = function(file=NULL, verbose=FALSE, quote.char = "__QUOTE__", text=NU
   }
 
   tryCatch(
-    li <- yaml.load(str, handlers=list("bool#yes"=yaml.bool.handler.yes,"bool#no"=yaml.bool.handler.no, "str"=yaml.string.handler)),
+    li <- yaml.load(str, handlers=handlers),
     error = function(e) {
       str = paste0(as.character(e),file.str)
       stop(str, call.=FALSE)
